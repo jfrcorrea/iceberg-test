@@ -1,0 +1,3 @@
+[destination.filesystem]
+bucket_url = "file:///home/jfrcorrea/git/jfrcorrea/iceberg-test/dlthub/data"
+layout = "{table_name}/{load_id}.{file_id}.{ext}"
