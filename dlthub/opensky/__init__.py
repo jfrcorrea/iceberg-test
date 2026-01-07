@@ -20,11 +20,18 @@ def get_opensky_token(client_id: str, client_secret: str) -> str:
 
 @dlt.source
 def opensky(client_id: str = dlt.secrets.value, client_secret: str = dlt.secrets.value):
-    return states(client_id, client_secret)
+    return states(client_id=client_id, client_secret=client_secret)
 
 @dlt.resource(write_disposition="append")
-def states(client_id: str = dlt.secrets.value, client_secret: str = dlt.secrets.value):
-    """Fetches all state vectors from OpenSky Network."""
+def states(
+    client_id: str = dlt.secrets.value,
+    client_secret: str = dlt.secrets.value,
+    last_contact=dlt.sources.incremental("last_contact", initial_value=0),
+):
+    """Fetches all state vectors from OpenSky Network.
+    
+    This resource is incremental and uses 'last_contact' to track the last loaded state.
+    """
     
     # Get the token
     token = get_opensky_token(client_id, client_secret)
@@ -34,7 +41,9 @@ def states(client_id: str = dlt.secrets.value, client_secret: str = dlt.secrets.
         "Authorization": f"Bearer {token}"
     }
     
-    response = dlt_requests.get(url, headers=headers)
+    params = {}
+    
+    response = dlt_requests.get(url, headers=headers, params=params)
     response.raise_for_status()
     
     data = response.json()
